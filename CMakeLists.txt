@@ -4,6 +4,7 @@ project(Klosar)
 
 add_executable(${PROJECT_NAME}
 	src/Main.cpp
+    src/Renderer.cpp
 	libs/glad-3.3-core/src/glad.c
 )
 
