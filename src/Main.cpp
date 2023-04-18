@@ -15,9 +15,11 @@ int main()
 
     Renderer::Init();
 
-    while (!Renderer::JeOdprto())
+    while (!Renderer::JeOknoOdprto())
     {
         Renderer::NovFrame();
+
+        Renderer::Draw(Tekstura{}, {0.0f, 0.0f}, {0.0f, 0.0f});
 
         Renderer::KonecFrama();
     }

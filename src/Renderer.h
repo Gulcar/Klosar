@@ -25,9 +25,20 @@ public:
     static void KonecFrama();
 
     // vrne glfwWindowShouldClose
-    static bool JeOdprto();
+    static bool JeOknoOdprto();
 
 private:
-    static inline struct GLFWwindow* window;
+    static void UstvariBufferje();
+    static void UstvariShader();
+    static void OnWindowResize(struct GLFWwindow* window, int width, int height);
+
+private:
+    static inline struct GLFWwindow* window = nullptr;
+
+    static inline uint32_t vao;
+    static inline uint32_t vbo;
+    static inline uint32_t ebo;
+
+    static inline uint32_t shaderProgram;
 };
 
