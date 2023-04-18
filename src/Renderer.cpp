@@ -10,9 +10,12 @@ const char* vertexShaderSource = R"(
 layout (location = 0) in vec2 aPos;
 layout (location = 1) in vec2 aTexCoords;
 
+out vec2 TexCoords;
+
 void main()
 {
     gl_Position = vec4(aPos, 0.0, 1.0);
+    TexCoords = aTexCoords;
 }
 )";
 
@@ -20,10 +23,11 @@ const char* fragmentShaderSource = R"(
 #version 330 core
 
 out vec4 FragColor;
+in vec2 TexCoords;
 
 void main()
 {
-    FragColor = vec4(0.9, 0.1, 0.1, 1.0);
+    FragColor = vec4(TexCoords.xy, 0.1, 1.0);
 }
 )";
 
@@ -70,6 +74,9 @@ Tekstura Renderer::NaloziTeksturo(const char* filename)
 void Renderer::NovFrame()
 {
     glfwPollEvents();
+
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE))
+        glfwSetWindowShouldClose(window, true);
 
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
