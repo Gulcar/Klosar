@@ -4,17 +4,24 @@
 #include <GLFW/glfw3.h>
 #include "Ostalo.h"
 #include <cmath>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/ext/matrix_clip_space.hpp>
 
 const char* vertexShaderSource = R"(
 #version 330 core
 layout (location = 0) in vec2 aPos;
 layout (location = 1) in vec2 aTexCoords;
 
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
 out vec2 TexCoords;
 
 void main()
 {
-    gl_Position = vec4(aPos, 0.0, 1.0);
+    gl_Position = projection * view * model * vec4(aPos, 0.0, 1.0);
     TexCoords = aTexCoords;
 }
 )";
@@ -45,8 +52,8 @@ void Renderer::Init()
     glfwMakeContextCurrent(window);
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
-    glViewport(0, 0, 1600, 900);
     glfwSetFramebufferSizeCallback(window, Renderer::OnWindowResize);
+    Renderer::OnWindowResize(window, 1600, 900);
 
     UstvariBufferje();
     UstvariShader();
@@ -61,8 +68,24 @@ void Renderer::Unici()
     glfwTerminate();
 }
 
-void Renderer::Draw(Tekstura& tekstura, glm::vec2 pos, glm::vec2 velikost, float rot)
+void Renderer::Draw(const Tekstura& tekstura, glm::vec2 pos, glm::vec2 velikost, float rot)
 {
+    static int modelLoc = glGetUniformLocation(shaderProgram, "model");
+    static int viewLoc = glGetUniformLocation(shaderProgram, "view");
+    static int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+
+    glm::mat4 model(1.0f);
+    model = glm::translate(model, glm::vec3(pos.x, pos.y, 0.0f));
+    model = glm::scale(model, glm::vec3(velikost.x, velikost.y, 1.0f));
+    model = glm::rotate(model, rot, glm::vec3(0.0f, 0.0f, 1.0f));
+
+    glm::mat4 view(1.0f);
+    view = glm::translate(view, glm::vec3(-Kamera.x, -Kamera.y, 0.0f));
+
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projectionMat[0][0]);
+
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
@@ -184,4 +207,7 @@ void Renderer::UstvariShader()
 void Renderer::OnWindowResize(struct GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+
+    float razmerje = (float)width / (float)height;
+    projectionMat = glm::ortho(-5.0f * razmerje, 5.0f * razmerje, -5.0f, 5.0f);
 }
