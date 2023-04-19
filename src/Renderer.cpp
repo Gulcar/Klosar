@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "Ostalo.h"
+#include <stb_image.h>
 #include <cmath>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -32,9 +33,11 @@ const char* fragmentShaderSource = R"(
 out vec4 FragColor;
 in vec2 TexCoords;
 
+uniform sampler2D tekstura;
+
 void main()
 {
-    FragColor = vec4(TexCoords.xy, 0.1, 1.0);
+    FragColor = texture(tekstura, TexCoords);
 }
 )";
 
@@ -57,6 +60,8 @@ void Renderer::Init()
 
     UstvariBufferje();
     UstvariShader();
+
+    stbi_set_flip_vertically_on_load(true);
 }
 
 void Renderer::Unici()
@@ -85,13 +90,40 @@ void Renderer::Draw(const Tekstura& tekstura, glm::vec2 pos, glm::vec2 velikost,
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projectionMat[0][0]);
+    glUniform1i(glGetUniformLocation(shaderProgram, "tekstura"), 0);
+
+    glBindTexture(GL_TEXTURE_2D, tekstura.id);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
 Tekstura Renderer::NaloziTeksturo(const char* filename)
 {
-    return {};
+    Tekstura t = {};
+
+    glGenTextures(1, &t.id);
+    glBindTexture(GL_TEXTURE_2D, t.id);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    uint8_t* data = stbi_load(filename, &t.sirina, &t.visina, &t.stKanalov, 0);
+    if (data == nullptr) Error("ni uspelo naloziti teksture: %s", filename);
+
+    GLenum format;
+    switch (t.stKanalov)
+    {
+        case 1: format = GL_RED; break;
+        case 3: format = GL_RGB; break;
+        case 4: format = GL_RGBA; break;
+        default: Error("napacen format na teksturi: %s", filename);
+    }
+
+    glTexImage2D(GL_TEXTURE_2D, 0, format, t.sirina, t.visina,
+            0, format, GL_UNSIGNED_BYTE, data);
+
+    return t;
 }
 
 void Renderer::NovFrame()

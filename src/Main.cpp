@@ -11,9 +11,10 @@ int main()
 {
     std::cout << "Pozdravljen svet!\n";
 
-    float r = 0.0f;
-
     Renderer::Init();
+
+    float r = 0.0f;
+    Tekstura klosarTex = Renderer::NaloziTeksturo("../slike/test.png");
 
     while (!Renderer::JeOknoOdprto())
     {
@@ -21,7 +22,7 @@ int main()
 
         Renderer::NovFrame();
 
-        Renderer::Draw(Tekstura{}, { 0.0f, 0.0f }, { 5.0f, 5.0f }, r);
+        Renderer::Draw(klosarTex, { 0.0f, 0.0f }, { 5.0f, 5.0f }, r);
 
         Renderer::KonecFrama();
     }

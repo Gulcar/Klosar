@@ -7,6 +7,7 @@ struct Tekstura
 {
     uint32_t id; // id za opengl
     int sirina, visina; // velikost v pixlih
+    int stKanalov; // stevilo kanalov (3 - rgb, 4 - rgba)
 };
 
 class Renderer
