@@ -4,34 +4,27 @@
 //jaz pa denes nisem jedel sira
 
 #include <iostream>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include "Renderer.h"
 
 int main()
 {
     std::cout << "Pozdravljen svet!\n";
 
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    float r = 0.0f;
 
-    GLFWwindow* window = glfwCreateWindow(1600, 900, "Klosar", 0, 0);
-    glfwMakeContextCurrent(window);
+    Renderer::Init();
 
-    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-    glViewport(0, 0, 1600, 900);
-
-    while (!glfwWindowShouldClose(window))
+    while (!Renderer::JeOknoOdprto())
     {
-        glfwPollEvents();
+        r += 0.05f;
 
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        Renderer::NovFrame();
 
-        glfwSwapBuffers(window);
+        Renderer::Draw(Tekstura{}, { 0.0f, 0.0f }, { 5.0f, 5.0f }, r);
+
+        Renderer::KonecFrama();
     }
 
-    glfwTerminate();
+    Renderer::Unici();
 }
